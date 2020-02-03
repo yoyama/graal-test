@@ -13,7 +13,7 @@ import java.io.InputStreamReader;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
-public class GraalTest1
+public class GraalEval
 {
     Engine engine;
     private final Source[] libraryJsSources;
@@ -38,7 +38,7 @@ public class GraalTest1
 
     private static String readResource(String resourceName)
     {
-        try (InputStream in = GraalTest1.class.getResourceAsStream(resourceName)) {
+        try (InputStream in = GraalEval.class.getResourceAsStream(resourceName)) {
             BufferedReader reader = new BufferedReader(new InputStreamReader(in, UTF_8));
             StringBuffer sb = new StringBuffer();
             String str;
@@ -52,7 +52,7 @@ public class GraalTest1
             throw new RuntimeException(ex);
         }
     }
-    public GraalTest1()
+    public GraalEval()
     {
         engine = Engine.newBuilder()
                 .allowExperimentalOptions(true)
@@ -70,7 +70,7 @@ public class GraalTest1
 
     }
 
-    public String run1(String code, String paramJson)
+    public String eval(String code, String paramJson)
     {
         Context.Builder contextBuilder = Context.newBuilder()
                 .engine(engine)
