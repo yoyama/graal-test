@@ -43,10 +43,20 @@ public class Main
     }
 
     @Benchmark
-    public void benchmarkNashorn()
+    public void benchmarkNashornOriginal()
     {
         for (TestParam tp: TestData) {
             NashornEval nashorn = new NashornEval();
+            String str = nashorn.eval(tp.template, tp.params);
+        }
+    }
+
+    @Benchmark
+    public void benchmarkNashornImproved()
+    {
+        for (TestParam tp: TestData) {
+            String[] options = new String[] {"--no-deprecation-warning", "--optimistic-types=false"};
+            NashornEval nashorn = new NashornEval(options);
             String str = nashorn.eval(tp.template, tp.params);
         }
     }

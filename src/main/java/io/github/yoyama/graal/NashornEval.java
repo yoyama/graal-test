@@ -1,11 +1,7 @@
 package io.github.yoyama.graal;
 
 import jdk.nashorn.api.scripting.NashornScriptEngineFactory;
-import org.graalvm.polyglot.Context;
-import org.graalvm.polyglot.Engine;
-import org.graalvm.polyglot.PolyglotException;
 import org.graalvm.polyglot.Source;
-import org.graalvm.polyglot.Value;
 
 import javax.script.Invocable;
 import javax.script.ScriptEngine;
@@ -14,6 +10,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.stream.Stream;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
@@ -22,6 +19,7 @@ public class NashornEval
     private final NashornScriptEngineFactory jsEngineFactory;
 
     private final Source[] libraryJsSources;
+    private final String[] addEngineOptions; //Additional option for ScriptEngine
 
     private static final String[][] LIBRARY_JS_RESOURCES = {
             new String[] { "digdag.js", "/io/digdag/core/agent/digdag.js" },
@@ -43,7 +41,13 @@ public class NashornEval
 
     public NashornEval()
     {
+        this(new String[]{});
+    }
+
+    public NashornEval(String[] addEngineOptions)
+    {
         this.jsEngineFactory = new NashornScriptEngineFactory();
+        this.addEngineOptions = addEngineOptions;
         try {
             this.libraryJsSources = new Source[LIBRARY_JS_CONTENTS.length];
             for (int i = 0; i < LIBRARY_JS_CONTENTS.length; i++) {
@@ -75,11 +79,16 @@ public class NashornEval
 
     public String eval(String code, String paramJson)
     {
-        ScriptEngine scriptEngine = jsEngineFactory.getScriptEngine(new String[] {
+        String[] fixedOptions = new String[] {
                 //"--language=es6",  // this is not even accepted with jdk1.8.0_20 and has a bug with jdk1.8.0_51
                 "--no-java",
                 "--no-syntax-extensions"
-        });
+        };
+
+        String[] options = Stream.of(fixedOptions, addEngineOptions)
+                            .flatMap(Stream::of).toArray(String[]::new);
+
+        ScriptEngine scriptEngine = jsEngineFactory.getScriptEngine(options);
         try {
             for (int i = 0; i < LIBRARY_JS_CONTENTS.length; i++) {
                 scriptEngine.eval(LIBRARY_JS_CONTENTS[i][1]);
