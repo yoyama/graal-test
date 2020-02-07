@@ -14,7 +14,7 @@ import java.util.stream.Stream;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
-public class NashornEval
+public class NashornEval extends JsEvalUtils
 {
     private final NashornScriptEngineFactory jsEngineFactory;
 
@@ -58,23 +58,6 @@ public class NashornEval
             throw new RuntimeException(ex);
         }
 
-    }
-
-    private static String readResource(String resourceName)
-    {
-        try (InputStream in = NashornEval.class.getResourceAsStream(resourceName)) {
-            BufferedReader reader = new BufferedReader(new InputStreamReader(in, UTF_8));
-            StringBuffer sb = new StringBuffer();
-            String str;
-            while((str = reader.readLine())!= null){
-                sb.append(str);
-                sb.append(System.lineSeparator());
-            }
-            return sb.toString();
-        }
-        catch (IOException ex) {
-            throw new RuntimeException(ex);
-        }
     }
 
     public String eval(String code, String paramJson)

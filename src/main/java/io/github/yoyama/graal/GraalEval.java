@@ -13,9 +13,10 @@ import java.io.InputStreamReader;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
-public class GraalEval
+public class GraalEval extends JsEvalUtils
 {
-    Engine engine;
+
+    private final Engine engine;
     private final Source[] libraryJsSources;
 
     private static final String[][] LIBRARY_JS_RESOURCES = {
@@ -36,27 +37,13 @@ public class GraalEval
         }
     }
 
-    private static String readResource(String resourceName)
-    {
-        try (InputStream in = GraalEval.class.getResourceAsStream(resourceName)) {
-            BufferedReader reader = new BufferedReader(new InputStreamReader(in, UTF_8));
-            StringBuffer sb = new StringBuffer();
-            String str;
-            while((str = reader.readLine())!= null){
-                sb.append(str);
-                sb.append(System.lineSeparator());
-            }
-            return sb.toString();
-        }
-        catch (IOException ex) {
-            throw new RuntimeException(ex);
-        }
-    }
-    public GraalEval()
+    public GraalEval() { this(true); }
+
+    public GraalEval(boolean nashornCompat)
     {
         engine = Engine.newBuilder()
                 .allowExperimentalOptions(true)
-                .option("js.nashorn-compat", "true")
+                .option("js.nashorn-compat", String.valueOf(nashornCompat))
                 .build();
         try {
             this.libraryJsSources = new Source[LIBRARY_JS_CONTENTS.length];

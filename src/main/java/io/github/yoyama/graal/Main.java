@@ -2,31 +2,13 @@ package io.github.yoyama.graal;
 
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.List;
 import org.openjdk.jmh.annotations.Benchmark;
 
 public class Main
 {
-    public static class TestParam
-    {
-        private String template;
-        private String params;
-        public TestParam(String template, String params)
-        {
-            this.template = template;
-            this.params = params;
-        }
-
-        public static TestParam of(String template, String params)
-        {
-            return new TestParam(template, params);
-        }
-    }
-    public static List<TestParam> TestData = Arrays.asList(
-      TestParam.of("echo>: ${moment(session_time).format(\"YYYY-MM-DD HH:mm:ss Z\")}", "{\"session_time\":1}")
-    );
-
+    public static List<TestParam> TestData = TestParam.TestData;
+    private static final int TEST_LOOP = 10;
 
      public static void main(String[] args) throws IOException
      {
@@ -36,28 +18,54 @@ public class Main
     @Benchmark
     public void benchmarkGraalJS()
     {
-        for (TestParam tp: TestData) {
-            GraalEval graal = new GraalEval();
-            String str = graal.eval(tp.template, tp.params);
+        GraalEval graal = new GraalEval();
+        for ( int i = 0; i < TEST_LOOP; i++) {
+            for (TestParam tp : TestData) {
+                String str = graal.eval(tp.getTemplate(), tp.getParams());
+                //System.out.println(str);
+            }
+        }
+    }
+
+    @Benchmark
+    public void benchmarkGraalJSNoCompat()
+    {
+        GraalEval graal = new GraalEval(false); //nashorn compatible mode is false
+        for ( int i = 0; i < TEST_LOOP; i++) {
+            for (TestParam tp : TestData) {
+                String str = graal.eval(tp.getTemplate(), tp.getParams());
+            }
         }
     }
 
     @Benchmark
     public void benchmarkNashornOriginal()
     {
-        for (TestParam tp: TestData) {
-            NashornEval nashorn = new NashornEval();
-            String str = nashorn.eval(tp.template, tp.params);
+        NashornEval nashorn = new NashornEval();
+        for ( int i = 0; i < TEST_LOOP; i++) {
+            for (TestParam tp : TestData) {
+                String str = nashorn.eval(tp.getTemplate(), tp.getParams());
+            }
         }
     }
 
     @Benchmark
     public void benchmarkNashornImproved()
     {
-        for (TestParam tp: TestData) {
-            String[] options = new String[] {"--no-deprecation-warning", "--optimistic-types=false"};
-            NashornEval nashorn = new NashornEval(options);
-            String str = nashorn.eval(tp.template, tp.params);
+        String[] options = getJdkMajorVersin() < 11 ?
+                        new String[] {} :
+                        new String[] {"--no-deprecation-warning", "--optimistic-types=false"};
+        NashornEval nashorn = new NashornEval(options);
+        for ( int i = 0; i < TEST_LOOP; i++) {
+            for (TestParam tp : TestData) {
+                String str = nashorn.eval(tp.getTemplate(), tp.getParams());
+            }
         }
+    }
+
+    public int getJdkMajorVersin()
+    {
+        String javaSpecVer = System.getProperty("java.specification.version");
+        return Integer.parseInt(javaSpecVer.split("[^0-9]")[0]);
     }
 }
