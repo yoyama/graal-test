@@ -11,7 +11,7 @@ plugins {
 }
 
 wrapper {
-    gradleVersion = '4.8'
+    gradleVersion = '6.0.1'
 }
 
 repositories {
@@ -27,6 +27,7 @@ application {
     mainClassName = javaMainClass
 }
 
+
 shadowJar {
     mergeServiceFiles()
 }
@@ -36,17 +37,18 @@ apply plugin: 'idea'
 apply plugin: 'java'
 apply plugin: 'maven'
 
-sourceCompatibility = 1.8
-targetCompatibility = 1.8
+sourceCompatibility = 11
+targetCompatibility = 11
 
 compileJava {
     options.encoding = 'UTF-8'
     options.compilerArgs = []
 }
+
 compileTestJava.options.encoding = 'UTF-8'
 
 test {
-    jvmArgs = []
+    jvmArgs = ['-XX:+UnlockExperimentalVMOptions', '-XX:+EnableJVMCI']
     testLogging {
         events "PASSED", "STARTED", "FAILED", "SKIPPED"
     }
