@@ -48,6 +48,7 @@ compileJava {
 compileTestJava.options.encoding = 'UTF-8'
 
 test {
+    //jvmArgs = ['-XX:+PrintCompilation', '-XX:+UnlockExperimentalVMOptions', '-XX:+EnableJVMCI']
     jvmArgs = ['-XX:+UnlockExperimentalVMOptions', '-XX:+EnableJVMCI']
     testLogging {
         events "PASSED", "STARTED", "FAILED", "SKIPPED"
