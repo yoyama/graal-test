@@ -25,4 +25,11 @@ public class JsEvalUtils
             throw new RuntimeException(ex);
         }
     }
+
+    public static int getJdkMajorVersin()
+    {
+        String javaSpecVer = System.getProperty("java.specification.version");
+        return Integer.parseInt(javaSpecVer.split("[^0-9]")[0]);
+    }
+
 }

@@ -44,6 +44,10 @@ public class GraalEval extends JsEvalUtils
         engine = Engine.newBuilder()
                 .allowExperimentalOptions(true)
                 .option("js.nashorn-compat", String.valueOf(nashornCompat))
+                .option("js.console", String.valueOf(false))
+                .option("js.load", "true") //default
+                .option("js.syntax-extensions", "false")
+                .option("js.ecmascript-version", "5")
                 .build();
         try {
             this.libraryJsSources = new Source[LIBRARY_JS_CONTENTS.length];
@@ -73,6 +77,7 @@ public class GraalEval extends JsEvalUtils
                 context = null;
                 return result.asString();
             } catch (PolyglotException ex) {
+                ex.printStackTrace();
                 String message;
                 if (ex.getCause() != null) {
                     message = ex.getCause().getMessage();
@@ -81,7 +86,7 @@ public class GraalEval extends JsEvalUtils
                 }
                 System.err.println(message);
                 ex.printStackTrace();
-                throw ex;
+                throw new IllegalStateException("Unexpected script evaluation failure", ex);
             }
         } finally {
             if (context != null) {

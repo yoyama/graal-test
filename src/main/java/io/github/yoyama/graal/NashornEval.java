@@ -80,6 +80,7 @@ public class NashornEval extends JsEvalUtils
             return (String) invocable.invokeFunction("template", code, paramJson);
         }
         catch (ScriptException | ClassCastException ex) {
+            ex.printStackTrace();
             throw new IllegalStateException("Unexpected script evaluation failure", ex);
         }
         catch (NoSuchMethodException ex) {

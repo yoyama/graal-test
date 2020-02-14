@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.util.List;
 import org.openjdk.jmh.annotations.Benchmark;
 
-public class Main
+public class Main extends JsEvalUtils
 {
     public static List<TestParam> TestData = TestParam.TestData;
     private static final int TEST_LOOP = 10;
@@ -63,9 +63,4 @@ public class Main
         }
     }
 
-    public int getJdkMajorVersin()
-    {
-        String javaSpecVer = System.getProperty("java.specification.version");
-        return Integer.parseInt(javaSpecVer.split("[^0-9]")[0]);
-    }
 }
