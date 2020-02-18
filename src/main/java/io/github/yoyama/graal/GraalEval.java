@@ -2,6 +2,7 @@ package io.github.yoyama.graal;
 
 import org.graalvm.polyglot.Context;
 import org.graalvm.polyglot.Engine;
+import org.graalvm.polyglot.HostAccess;
 import org.graalvm.polyglot.PolyglotException;
 import org.graalvm.polyglot.Source;
 import org.graalvm.polyglot.Value;
@@ -46,6 +47,7 @@ public class GraalEval extends JsEvalUtils
                 .option("js.nashorn-compat", String.valueOf(nashornCompat))
                 .option("js.console", String.valueOf(false))
                 .option("js.load", "true") //default
+                .option("js.load-from-url", "false") //default
                 .option("js.syntax-extensions", "false")
                 .option("js.ecmascript-version", "5")
                 .build();
@@ -65,7 +67,9 @@ public class GraalEval extends JsEvalUtils
     {
         Context.Builder contextBuilder = Context.newBuilder()
                 .engine(engine)
-                .allowAllAccess(false);
+                .allowAllAccess(false)
+                //.allowIO(true) //required for load from url
+                ;
         Context context = contextBuilder.build();
         try {
             for (Source lib : libraryJsSources) {

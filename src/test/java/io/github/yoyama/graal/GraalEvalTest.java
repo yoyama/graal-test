@@ -5,6 +5,8 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import static org.junit.Assert.assertEquals;
+
 public class GraalEvalTest {
     GraalEval eval;
 
@@ -47,6 +49,12 @@ public class GraalEvalTest {
     }
      */
 
+    @Test(expected = IllegalStateException.class)
+    public void mustErrorLoadFromUrl()
+    {
+        String ret = eval.eval("echo>: ${load('https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js')}","{}");
+        System.out.println(ret);
+    }
 
     @Test(expected = IllegalStateException.class)
     public void mustErrorNashronExt()
@@ -62,4 +70,20 @@ public class GraalEvalTest {
         System.out.println(ret);
     }
 
+    @Test(expected = IllegalStateException.class)
+    public void mustNotShared()
+    {
+        String ret1 = eval.eval("echo>: ${i=999}","{}");
+        System.out.println(ret1);
+        String ret2 = eval.eval("echo>: ${i*2}","{}");
+        System.out.println(ret2);
+    }
+
+    @Test
+    public void mustShared2()
+    {
+        String ret1 = eval.eval("echo>: ${i=999} ${i*2}","{}");
+        System.out.println(ret1);
+        assertEquals("echo>: 999 1998", ret1);
+    }
 }
