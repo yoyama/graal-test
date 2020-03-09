@@ -100,4 +100,21 @@ public class NashornEvalTest extends JsEvalUtils{
         System.out.println(ret1);
         assertEquals("echo>: 999 1998", ret1);
     }
+
+    @Test
+    public void JavaClass()
+    {
+        String ret1 = eval.eval("echo>: ${'aaa'.replaceAll('a', 'b')}", "{}");
+        System.out.println(ret1);
+        assertEquals("echo>: bbb", ret1);
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void JavaClass2()
+    {
+        String ret2 = eval.eval("echo>: ${new Integer(10)}", "{}");
+        System.out.println(ret2);
+        assertEquals("echo>: 10", ret2);
+    }
+
 }

@@ -6,6 +6,8 @@ import org.graalvm.polyglot.HostAccess;
 import org.graalvm.polyglot.PolyglotException;
 import org.graalvm.polyglot.Source;
 import org.graalvm.polyglot.Value;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -16,6 +18,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class GraalEval extends JsEvalUtils
 {
+    private static Logger logger = LoggerFactory.getLogger(GraalEval.class);
 
     private final Engine engine;
     private final Source[] libraryJsSources;
@@ -24,6 +27,11 @@ public class GraalEval extends JsEvalUtils
             new String[] { "digdag.js", "/io/digdag/core/agent/digdag.js" },
             new String[] { "moment.min.js", "/io/digdag/core/agent/moment.min.js" },
     };
+
+    private static final HostAccess hostAccess = HostAccess.newBuilder()
+            .allowPublicAccess(true)
+            .build();
+
 
     static final String[][] LIBRARY_JS_CONTENTS;
 
@@ -68,6 +76,15 @@ public class GraalEval extends JsEvalUtils
         Context.Builder contextBuilder = Context.newBuilder()
                 .engine(engine)
                 .allowAllAccess(false)
+                .allowHostAccess(hostAccess)
+                .allowHostClassLookup(className -> {
+                    if (className.matches("java\\.lang\\.String")) {
+                        return true;
+                    }
+                    else {
+                        return false;
+                    }
+                })
                 //.allowIO(true) //required for load from url
                 ;
         Context context = contextBuilder.build();
