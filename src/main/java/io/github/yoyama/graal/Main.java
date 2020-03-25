@@ -30,7 +30,30 @@ public class Main extends JsEvalUtils
     @Benchmark
     public void benchmarkGraalJSNoCompat()
     {
-        GraalEval graal = new GraalEval(false); //nashorn compatible mode is false
+        GraalEval graal = new GraalEval(false, false); //nashorn compatible mode is false
+        for ( int i = 0; i < TEST_LOOP; i++) {
+            for (TestParam tp : TestData) {
+                String str = graal.eval(tp.getTemplate(), tp.getParams());
+            }
+        }
+    }
+
+    @Benchmark
+    public void benchmarkGraalJSWithSeparateEngine()
+    {
+        GraalEval graal = new GraalEval(true, true);
+        for ( int i = 0; i < TEST_LOOP; i++) {
+            for (TestParam tp : TestData) {
+                String str = graal.eval(tp.getTemplate(), tp.getParams());
+                //System.out.println(str);
+            }
+        }
+    }
+
+    @Benchmark
+    public void benchmarkGraalJSWithNoCompatWithSeparateEngine()
+    {
+        GraalEval graal = new GraalEval(false, true); //nashorn compatible mode is false
         for ( int i = 0; i < TEST_LOOP; i++) {
             for (TestParam tp : TestData) {
                 String str = graal.eval(tp.getTemplate(), tp.getParams());

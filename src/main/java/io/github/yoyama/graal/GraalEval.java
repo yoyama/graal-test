@@ -9,18 +9,16 @@ import org.graalvm.polyglot.Value;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class GraalEval extends JsEvalUtils
 {
     private static Logger logger = LoggerFactory.getLogger(GraalEval.class);
 
     private final Engine engine;
+    private final boolean nashornCompat;
+    private final boolean separatedEngine;
     private final Source[] libraryJsSources;
 
     private static final String[][] LIBRARY_JS_RESOURCES = {
@@ -46,19 +44,13 @@ public class GraalEval extends JsEvalUtils
         }
     }
 
-    public GraalEval() { this(true); }
+    public GraalEval() { this(true, false); }
 
-    public GraalEval(boolean nashornCompat)
+    public GraalEval(boolean nashornCompat, boolean separatedEngine)
     {
-        engine = Engine.newBuilder()
-                .allowExperimentalOptions(true)
-                .option("js.nashorn-compat", String.valueOf(nashornCompat))
-                .option("js.console", String.valueOf(false))
-                .option("js.load", "true") //default
-                .option("js.load-from-url", "false") //default
-                .option("js.syntax-extensions", "false")
-                .option("js.ecmascript-version", "5")
-                .build();
+        this.nashornCompat = nashornCompat;
+        this.separatedEngine = separatedEngine;
+        engine = createEngine(this.nashornCompat);
         try {
             this.libraryJsSources = new Source[LIBRARY_JS_CONTENTS.length];
             for (int i = 0; i < LIBRARY_JS_CONTENTS.length; i++) {
@@ -68,13 +60,27 @@ public class GraalEval extends JsEvalUtils
         catch (IOException ex) {
             throw new RuntimeException(ex);
         }
+    }
 
+    private static Engine createEngine(boolean nashornCompat)
+    {
+        return Engine.newBuilder()
+                .allowExperimentalOptions(true)
+                .option("js.nashorn-compat", String.valueOf(nashornCompat))
+                .option("js.console", String.valueOf(false))
+                .option("js.load", "true") //default
+                .option("js.load-from-url", "false") //default
+                .option("js.syntax-extensions", "false")
+                .option("js.ecmascript-version", "5")
+                .build();
     }
 
     public String eval(String code, String paramJson)
     {
+        Engine jsEngine = separatedEngine? createEngine(nashornCompat): engine;
+        //engine.close();
         Context.Builder contextBuilder = Context.newBuilder()
-                .engine(engine)
+                .engine(jsEngine)
                 .allowAllAccess(false)
                 .allowHostAccess(hostAccess)
                 .allowHostClassLookup(className -> {
