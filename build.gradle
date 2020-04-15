@@ -49,6 +49,7 @@ test {
     //jvmArgs = ['-XX:+PrintCompilation']
     testLogging {
         events "PASSED", "STARTED", "FAILED", "SKIPPED"
+        showStandardStreams = true
     }
 }
 

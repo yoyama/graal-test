@@ -19,7 +19,7 @@ public class GraalEval extends JsEvalUtils
     private final Engine engine;
     private final boolean nashornCompat;
     private final boolean separatedEngine;
-    private final Source[] libraryJsSources;
+    public final Source[] libraryJsSources;
 
     private static final String[][] LIBRARY_JS_RESOURCES = {
             new String[] { "digdag.js", "/io/digdag/core/agent/digdag.js" },
